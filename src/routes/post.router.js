@@ -10,5 +10,6 @@ router.use(validateJWT);
 
 router.post('/', validateNewPost, postController.create);
 router.get('/', postController.listAll);
+router.get('/:id', postController.findById);
 
 module.exports = router;

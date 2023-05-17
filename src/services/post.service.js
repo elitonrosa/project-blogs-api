@@ -4,15 +4,12 @@ const Sequelize = require('sequelize');
 
 const { BlogPost, PostCategory, User, Category } = require('../models');
 
-const { validateBlogPost } = require('./validations/blogPostValidations');
-const {
-  validateCategoriesExist,
-} = require('./validations/categoryValidations');
+const { validateBlogPost, validateId } = require('./validations/blogPostValidations');
+const { validateCategoriesExist } = require('./validations/categoryValidations');
 
 const config = require('../config/config');
 
 const env = process.env.NODE_ENV;
-
 const sequelize = new Sequelize(config[env]);
 
 const createPostTransaction = async (userId, title, content, categoryIds) => {
@@ -63,7 +60,23 @@ const listAll = async () => {
   return { type: null, message: posts };
 };
 
+const findById = async (postId) => {
+  const idValidation = validateId(postId);
+  if (idValidation.type) return idValidation;
+
+  const post = await BlogPost.findByPk(postId, {
+    include: [
+      { model: User, as: 'user', attributes: { exclude: ['password'] } },
+      { model: Category, as: 'categories', through: { attributes: [] } },
+    ],
+  });
+  if (!post) return { type: 'POST_NOT_FOUND', message: 'Post does not exist' };
+
+  return { type: null, message: post };
+};
+
 module.exports = {
   create,
   listAll,
+  findById,
 };
