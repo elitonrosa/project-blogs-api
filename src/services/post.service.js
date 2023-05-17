@@ -2,10 +2,12 @@ require('dotenv').config();
 
 const Sequelize = require('sequelize');
 
-const { BlogPost, PostCategory } = require('../models');
+const { BlogPost, PostCategory, User, Category } = require('../models');
 
 const { validateBlogPost } = require('./validations/blogPostValidations');
-const { validateCategoriesExist } = require('./validations/categoryValidations');
+const {
+  validateCategoriesExist,
+} = require('./validations/categoryValidations');
 
 const config = require('../config/config');
 
@@ -36,7 +38,7 @@ const createPostTransaction = async (userId, title, content, categoryIds) => {
   return { type: null, message: newBlogPost };
 };
 
-const createPost = async (userId, title, content, categoryIds) => {
+const create = async (userId, title, content, categoryIds) => {
   const blogPostValidation = validateBlogPost(title, content, categoryIds);
   if (blogPostValidation.type) return blogPostValidation;
 
@@ -50,6 +52,18 @@ const createPost = async (userId, title, content, categoryIds) => {
   }
 };
 
+const listAll = async () => {
+  const posts = await BlogPost.findAll({
+    include: [
+      { model: User, as: 'user', attributes: { exclude: ['password'] } },
+      { model: Category, as: 'categories', through: { attributes: [] } },
+    ],
+  });
+
+  return { type: null, message: posts };
+};
+
 module.exports = {
-  createPost,
+  create,
+  listAll,
 };

@@ -2,7 +2,7 @@ const { Category } = require('../models');
 
 const { validateCategory } = require('./validations/categoryValidations');
 
-const createCategory = async (name) => {
+const create = async (name) => {
   const error = validateCategory(name);
   if (error.type) return error;
 
@@ -18,6 +18,6 @@ const listAll = async () => {
 };
 
 module.exports = {
-  createCategory,
+  create,
   listAll,
 };

@@ -8,6 +8,7 @@ const router = express.Router();
 
 router.use(validateJWT);
 
-router.post('/', validateNewPost, postController.createPost);
+router.post('/', validateNewPost, postController.create);
+router.get('/', postController.listAll);
 
 module.exports = router;

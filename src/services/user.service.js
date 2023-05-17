@@ -5,7 +5,7 @@ const { User } = require('../models');
 const { generateToken } = require('../helpers/tokenHelper');
 const schema = require('./validations/userValidations');
 
-const createUser = async (displayName, email, password, image) => {
+const create = async (displayName, email, password, image) => {
   const error = validadeNewUser(displayName, email, password);
   if (error.type) return error;
 
@@ -41,7 +41,7 @@ const listAll = async () => {
 };
 
 module.exports = {
-  createUser,
+  create,
   findById,
   listAll,
 };
