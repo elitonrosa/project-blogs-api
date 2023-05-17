@@ -1,6 +1,15 @@
+require('dotenv').config();
+
+// const Sequelize = require('sequelize');
+
+// const config = require('../config/config');
+
+// const env = process.env.NODE_ENV;
+// const sequelize = new Sequelize(config[env]);
+
 const { validadeNewUser } = require('./validations/userValidations');
 
-const { User } = require('../models');
+const { User, sequelize } = require('../models');
 
 const { generateToken } = require('../helpers/tokenHelper');
 const schema = require('./validations/userValidations');
@@ -40,8 +49,21 @@ const listAll = async () => {
   return { type: null, message: result };
 };
 
+const selfDestroy = async (id) => {
+  try {
+    await sequelize.transaction(async (t) => {
+      await User.destroy({ where: { id } }, { transaction: t });
+    });
+
+    return { type: null, message: '' };
+  } catch (error) {
+    return { type: 'INTERNAL_SERVER_ERROR', message: 'Internal server error' };
+  }
+};
+
 module.exports = {
   create,
   findById,
   listAll,
+  selfDestroy,
 };
