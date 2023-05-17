@@ -13,5 +13,6 @@ router.post('/', validateNewPost, postController.create);
 router.get('/', postController.listAll);
 router.get('/:id', postController.findById);
 router.put('/:id', validatePostUpdate, postController.update);
+router.delete('/:id', postController.destroy);
 
 module.exports = router;

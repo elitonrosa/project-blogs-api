@@ -83,17 +83,18 @@ const updatePostTransaction = async (title, content, postId) => {
   const updatedPost = await sequelize.transaction(async (t) => {
     await BlogPost.update(
       { title, content, updated: new Date() },
-      { where: { id: postId } },
-      { transaction: t },
+      { where: { id: postId }, transaction: t },
     );
-
-    const post = await BlogPost.findByPk(postId, {
-      transaction: t,
-      include: [
-        { model: User, as: 'user', attributes: { exclude: ['password'] } },
-        { model: Category, as: 'categories', through: { attributes: [] } },
-      ],
-    });
+    const post = await BlogPost.findByPk(
+      postId,
+      {
+        include: [
+          { model: User, as: 'user', attributes: { exclude: ['password'] } },
+          { model: Category, as: 'categories', through: { attributes: [] } },
+        ],
+        transaction: t,
+      },
+    );
 
     return post;
   });
@@ -116,9 +117,26 @@ const update = async (title, content, postId, userId) => {
   }
 };
 
+const destroy = async (postId, userId) => {
+  const post = await BlogPost.findByPk(postId);
+  if (!post) return { type: 'POST_NOT_FOUND', message: 'Post does not exist' };
+  if (post.userId !== userId) return { type: 'UNAUTHORIZED', message: 'Unauthorized user' };
+
+  try {
+    await sequelize.transaction(async (t) => {
+      await BlogPost.destroy({ where: { id: postId }, transaction: t });
+    });
+
+    return { type: null, message: '' };
+  } catch (err) {
+    return { type: 'INTERNAL_SERVER_ERROR', message: 'Internal server error' };
+  }
+};
+
 module.exports = {
   create,
   listAll,
   findById,
   update,
+  destroy,
 };
