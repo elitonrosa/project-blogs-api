@@ -1,7 +1,6 @@
 require('dotenv').config();
 
 const Sequelize = require('sequelize');
-const snakeize = require('snakeize');
 
 const { BlogPost, PostCategory } = require('../models');
 
@@ -29,7 +28,7 @@ const createPostTransaction = async (userId, title, content, categoryIds) => {
 
     const categories = categoryIds.map((id) => ({ postId: newPost.id, categoryId: id }));
 
-    await PostCategory.bulkCreate(snakeize(categories), { transaction: t });
+    await PostCategory.bulkCreate(categories, { transaction: t });
 
     return newPost;
   });
