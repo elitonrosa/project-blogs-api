@@ -1,14 +1,8 @@
-const schema = require('./validations/loginValidations');
+const schema = require('./validations/userValidations');
 
 const { User } = require('../models');
 
 const { generateToken } = require('../helpers/tokenHelper');
-
-const listAll = async () => {
-  const result = await User.findAll({ raw: true });
-
-  return { type: null, message: result };
-};
 
 const login = async (email, password) => {
   const error = schema.validateEmail(email);
@@ -25,6 +19,5 @@ const login = async (email, password) => {
 };
 
 module.exports = {
-  listAll,
   login,
 };

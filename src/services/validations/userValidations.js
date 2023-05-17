@@ -1,4 +1,16 @@
-const { emailSchema, passwordSchema, nameSchema } = require('./schemas');
+const {
+  emailSchema,
+  passwordSchema,
+  nameSchema,
+  idSchema,
+} = require('./schemas');
+
+const validateId = (id) => {
+  const { error } = idSchema.validate({ id });
+  if (error) return { type: 'INVALID_VALUE', message: error.message };
+
+  return { type: null, message: '' };
+};
 
 const validateEmail = (email) => {
   const { error } = emailSchema.validate({ email });
@@ -35,8 +47,9 @@ const validadeNewUser = (displayName, email, password) => {
 };
 
 module.exports = {
+  validadeNewUser,
+  validateName,
   validateEmail,
   validatePassword,
-  validateName,
-  validadeNewUser,
+  validateId,
 };
