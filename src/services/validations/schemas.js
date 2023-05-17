@@ -16,9 +16,14 @@ const idSchema = Joi.object({
   id: Joi.number().integer().positive().required(),
 });
 
+const categorySchema = Joi.object({
+  name: Joi.string().min(3).required(),
+});
+
 module.exports = {
   emailSchema,
   passwordSchema,
   nameSchema,
   idSchema,
+  categorySchema,
 };
