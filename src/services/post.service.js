@@ -4,7 +4,11 @@ const Sequelize = require('sequelize');
 
 const { BlogPost, PostCategory, User, Category } = require('../models');
 
-const { validateBlogPost, validateId } = require('./validations/blogPostValidations');
+const {
+  validateBlogPost,
+  validateId,
+  validateBlogPostUpdate,
+} = require('./validations/blogPostValidations');
 const { validateCategoriesExist } = require('./validations/categoryValidations');
 
 const config = require('../config/config');
@@ -14,7 +18,7 @@ const sequelize = new Sequelize(config[env]);
 
 const createPostTransaction = async (userId, title, content, categoryIds) => {
   const newBlogPost = await sequelize.transaction(async (t) => {
-    const { dataValues: newPost } = await BlogPost.create(
+    const newPost = await BlogPost.create(
       {
         title,
         content,
@@ -75,8 +79,46 @@ const findById = async (postId) => {
   return { type: null, message: post };
 };
 
+const updatePostTransaction = async (title, content, postId) => {
+  const updatedPost = await sequelize.transaction(async (t) => {
+    await BlogPost.update(
+      { title, content, updated: new Date() },
+      { where: { id: postId } },
+      { transaction: t },
+    );
+
+    const post = await BlogPost.findByPk(postId, {
+      transaction: t,
+      include: [
+        { model: User, as: 'user', attributes: { exclude: ['password'] } },
+        { model: Category, as: 'categories', through: { attributes: [] } },
+      ],
+    });
+
+    return post;
+  });
+
+  return { type: null, message: updatedPost };
+};
+
+const update = async (title, content, postId, userId) => {
+  const post = await BlogPost.findByPk(postId);
+  if (!post) return { type: 'POST_NOT_FOUND', message: 'Post does not exist' };
+  if (post.userId !== userId) return { type: 'UNAUTHORIZED', message: 'Unauthorized user' };
+
+  const blogPostValidation = validateBlogPostUpdate(title, content);
+  if (blogPostValidation.type) return blogPostValidation;
+
+  try {
+    return await updatePostTransaction(title, content, postId);
+  } catch (err) {
+    return { type: 'INTERNAL_SERVER_ERROR', message: 'Internal server error' };
+  }
+};
+
 module.exports = {
   create,
   listAll,
   findById,
+  update,
 };

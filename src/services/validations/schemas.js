@@ -34,6 +34,11 @@ const blogpostSchema = Joi.object({
   categoryIds: Joi.array().items(Joi.number().integer().positive()).min(1).required(),
 });
 
+const blogpostUpdateSchema = Joi.object({
+  title: Joi.string().min(3).required(),
+  content: Joi.string().min(3).required(),
+});
+
 module.exports = {
   emailSchema,
   passwordSchema,
@@ -43,4 +48,5 @@ module.exports = {
   postTitleSchema,
   postContentSchema,
   blogpostSchema,
+  blogpostUpdateSchema,
 };
