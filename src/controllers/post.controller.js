@@ -49,10 +49,20 @@ const destroy = async (req, res) => {
   return res.status(204).json();
 };
 
+const listBySearch = async (req, res) => {
+  const { q: searchTerm } = req.query;
+
+  const { type, message } = await postService.listBySearch(searchTerm);
+  if (type) return res.status(mapError(type)).json({ message });
+
+  return res.status(200).json(message);
+};
+
 module.exports = {
   create,
   listAll,
   findById,
   update,
   destroy,
+  listBySearch,
 };

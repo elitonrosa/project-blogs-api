@@ -9,6 +9,7 @@ const router = express.Router();
 
 router.use(validateJWT);
 
+router.get('/search', postController.listBySearch);
 router.post('/', validateNewPost, postController.create);
 router.get('/', postController.listAll);
 router.get('/:id', postController.findById);
